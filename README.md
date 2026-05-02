@@ -61,6 +61,29 @@ println(txt)
 close(model)
 ```
 
+**Expected output** (stories15M-q4_0.gguf):
+
+```
+GGUFModel(open, path="stories15M-q4_0.gguf", tensors=27, metadata=19)
+  Architecture : llama
+  Name         : stories15M
+  ...
+  token_embd.weight   dims=(2048, 32000)   dtype=Q4_0
+  blk.0.attn_q.weight dims=(2048, 2048)    dtype=Q4_0
+  ...
+✓ Data is memory-mapped — no copy into Julia heap.
+```
+
+### Run the built-in example script
+
+```bash
+# Automatically downloads stories15M (~18 MB) on first run
+julia --project=. examples/basic_usage.jl
+
+# Or point it at your own model
+julia --project=. examples/basic_usage.jl /path/to/model.gguf
+```
+
 ## Optional: Tokenizers.jl bridge
 
 When [Tokenizers.jl](https://github.com/JuliaHub/Tokenizers.jl) is installed,
@@ -71,6 +94,63 @@ to the full HuggingFace tokenizer embedded in the GGUF file:
 using Ekatra, Tokenizers   # extension loads automatically
 model = load_gguf("model.gguf")
 tok   = get_tokenizer(model)   # → TokenizersBridgeTokenizer
+```
+
+## Testing
+
+### Unit tests (no internet required)
+
+```bash
+julia --project=. test/runtests.jl
+```
+
+### Real-model tests (downloads on first run, then cached)
+
+```bash
+# Tiny model (~18 MB) — fast, good for CI
+julia --project=. test/real_models/test_tiny_model.jl
+
+# Quantized model (~100 MB) — validates K-quant types
+julia --project=. test/real_models/test_quantized_model.jl
+```
+
+Models are downloaded from HuggingFace into `test/real_models/cache/` (git-ignored).
+Set `EKATRA_SKIP_NETWORK_TESTS=true` to skip downloads in offline environments.
+
+### Cross-validation with Python `gguf`
+
+```bash
+pip install gguf
+python test/real_models/cross_validate.py test/real_models/cache/stories15M-q4_0.gguf
+```
+
+The script validates that metadata keys, tensor shapes, and dtype assignments match
+the reference Python implementation, and writes a machine-readable JSON report.
+
+**Example output:**
+```
+============================================================
+Cross-validation: stories15M-q4_0.gguf  (19.1 MB)
+============================================================
+
+── Metadata ──────────────────────────────────────────────
+  general.architecture: 'llama'
+  general.name: 'stories15M'
+  llama.context_length: 2048
+  ...
+  Total metadata keys: 19
+
+── Tensors ────────────────────────────────────────────────
+  Total tensors: 27
+  [  0] token_embd.weight                          shape=[2048, 32000]  dtype=Q4_0
+  [  1] blk.0.attn_norm.weight                     shape=[2048]         dtype=F32
+  ...
+
+── Quantization type distribution ─────────────────────────
+  Q4_0          25 tensors
+  F32            2 tensors
+
+✓ Cross-validation PASSED for stories15M-q4_0.gguf
 ```
 
 ## API reference

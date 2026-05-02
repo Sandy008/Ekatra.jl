@@ -1,0 +1,33 @@
+# Model cache — never commit binary model files
+test/real_models/cache/
+examples/.model_cache/
+*.gguf
+
+# Julia build artefacts
+*.ji
+*.o
+*.so
+*.dylib
+/Manifest.toml
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+.venv/
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Cross-validation JSON reports (generated, not source)
+*.cross_validate.json

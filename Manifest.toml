@@ -1,20 +1,8 @@
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.12.6"
+julia_version = "1.11.6"
 manifest_format = "2.0"
-project_hash = "13e06e539fde560f2b05bef9c1762cfa758416c1"
-
-[[deps.Ekatra]]
-deps = ["Logging", "Mmap"]
-path = "."
-uuid = "d5c6a9e2-8f4b-4a3d-9c7e-1b2f3d4e5a6c"
-version = "0.1.0"
-
-    [deps.Ekatra.extensions]
-    EkatraTokenizersExt = "Tokenizers"
-
-    [deps.Ekatra.weakdeps]
-    Tokenizers = "0a4d2b9d-d0fa-40bb-8574-6b5dc8d1c77d"
+project_hash = "f16f94683c766594992fb6fec799e836489b2065"
 
 [[deps.Logging]]
 uuid = "56ddb016-857b-54e1-b83d-db4d58db5568"
