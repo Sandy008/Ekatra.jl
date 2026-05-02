@@ -1,0 +1,21 @@
+name = "Ekatra"
+uuid = "d5c6a9e2-8f4b-4a3d-9c7e-1b2f3d4e5a6c"
+version = "0.1.0"
+authors = ["Ekatra Contributors"]
+
+[deps]
+Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
+Mmap = "a63ad114-7e13-5084-954f-fe012c677804"
+Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
+
+[weakdeps]
+Tokenizers = "0a4d2b9d-d0fa-40bb-8574-6b5dc8d1c77d"
+
+[extensions]
+EkatraTokenizersExt = "Tokenizers"
+
+[compat]
+Logging = "1.11.0"
+Mmap = "1.11.0"
+Printf = "1.11.0"
+julia = "1.9"
