@@ -1,11 +1,42 @@
-# Ekatra.jl
+# Ekatra.jl — Zero-copy GGUF parser and tokenizer bridge for Julia
 
-**A zero-copy GGUF parser and tokenizer bridge for Julia.**
+**Status: v0.1 — Phase 1 complete**
 
-Ekatra.jl provides a production-grade, memory-safe interface for reading GGUF
-model files.  It parses the binary format via `Mmap`, exposes metadata and
-tensor data lazily through zero-copy pointer views, and includes a tokenizer
-bridge with a pure-Julia fallback.
+| | |
+|---|---|
+| ✅ | GGUF binary parsing (v1 / v2 / v3) |
+| ✅ | Zero-copy tensor access via `Mmap` |
+| ✅ | Quantization-aware type system (27 GGML types) |
+| ✅ | Full metadata KV dictionary |
+| ✅ | Native BPE/SentencePiece tokenizer |
+| ✅ | Tokenizers.jl bridge (optional extension) |
+| ✅ | Validation mode & thread-safe reads |
+| 🚧 | Inference runtime — Phase 2 planned |
+
+---
+
+## Why Ekatra?
+
+Most Julia ML tools copy model weights into managed arrays before doing anything
+useful.  For large quantized models this is both slow and wasteful.
+
+**Ekatra takes a different approach:**
+
+- **Zero-copy by default.** Tensor data is exposed as raw `Ptr{UInt8}` pointers
+  directly into the OS page cache via `Mmap`.  No bytes are allocated on the
+  Julia heap until you explicitly ask for them.  A 7 B model loads in
+  milliseconds regardless of size.
+
+- **HPC-grade access patterns.** Metadata lookup is O(1) with respect to model
+  size.  Partial loading (metadata-only, tokenizer-only) is a first-class
+  option, not an afterthought.  Pointer validity is enforced at every call site
+  so there are no silent use-after-free bugs.
+
+- **Julia-native ecosystem.** Quantization schemes are real Julia types, not
+  integer tags.  This means dispatch — future dequantization kernels, SIMD
+  optimizations, or GPU transfers can all be written as ordinary Julia methods
+  without touching the parser.  The Tokenizers.jl bridge loads automatically
+  via Julia's package-extension mechanism when the package is present.
 
 ---
 
@@ -175,4 +206,35 @@ Cross-validation: stories15M-q4_0.gguf  (19.1 MB)
 - **Type-Driven Quantization** — every quantization scheme is a distinct Julia type enabling future dispatch for optimized kernels.
 - **Safety** — pointer validity is enforced via lifecycle checks; access after `close` throws immediately.
 - **Thread-safe reads** — no mutable global state; all mutation is confined to construction.
+
+---
+
+## Roadmap
+
+### ✅ Phase 1 — GGUF parsing (complete, v0.1)
+
+- [x] Full GGUF v1/v2/v3 binary parser
+- [x] Zero-copy tensor access via `Mmap`
+- [x] Quantization-aware type system (27 GGML types)
+- [x] Full metadata KV dictionary
+- [x] Native BPE/SentencePiece tokenizer fallback
+- [x] Tokenizers.jl bridge extension
+- [x] Validation mode & lifecycle safety
+- [x] Real-model tests + Python cross-validation
+
+### 🚧 Phase 2 — Inference runtime (planned)
+
+- [ ] KV cache management (zero-allocation ring buffers)
+- [ ] Batched prompt processing
+- [ ] Dequantization kernels (Q4_K, Q8_0, F16 → F32) via Julia dispatch
+- [ ] GGML_jll integration for hardware-accelerated ops
+- [ ] CUDA / Metal backend hooks
+
+### 🔭 Phase 3 — Ecosystem tools & integrations (future)
+
+- [ ] `serve(model)` — HTTP inference endpoint
+- [ ] LangChain.jl / Agents.jl integration
+- [ ] LoRA / adapter weight loading
+- [ ] Streaming decode API
+- [ ] Model benchmarking suite
 
